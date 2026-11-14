@@ -8,19 +8,19 @@ import overwhelmed from "../../../public/illustrations/overwhelmed.png";
 
 export type SceneKind = "reading-books" | "reading-chair" | "relaxed" | "celebrate" | "overwhelmed";
 
-const SCENES: Record<SceneKind, { src: typeof readingBooks; alt: string; motion: string }> = {
-  "reading-books": { src: readingBooks, alt: "A girl reading on a pile of books", motion: "ani-breathe" },
-  "reading-chair": { src: readingChair, alt: "A girl reading in a big green armchair", motion: "ani-breathe-slow" },
-  relaxed: { src: relaxed, alt: "A girl lying back on a bed, arms out", motion: "ani-breathe-slow" },
-  celebrate: { src: celebrate, alt: "Two figures leaping through the air among flying sweets", motion: "ani-leap" },
-  overwhelmed: { src: overwhelmed, alt: "A girl tumbling through tall grass, plaits flying", motion: "ani-tumble" },
+const SCENES: Record<SceneKind, { src: typeof readingBooks; alt: string }> = {
+  "reading-books": { src: readingBooks, alt: "A girl reading on a pile of books" },
+  "reading-chair": { src: readingChair, alt: "A girl reading in a big green armchair" },
+  relaxed: { src: relaxed, alt: "A girl lying back on a bed, arms out" },
+  celebrate: { src: celebrate, alt: "Two figures leaping through the air among flying sweets" },
+  overwhelmed: { src: overwhelmed, alt: "A girl tumbling through tall grass, plaits flying" },
 };
 
-/** One of the five illustrations, with its own gentle idle motion. */
+/** One of the five illustrations, shown as supplied. */
 export function Scene({ kind, className, priority }: { kind: SceneKind; className?: string; priority?: boolean }) {
   const s = SCENES[kind];
   return (
-    <div className={`${s.motion} ${className ?? ""}`}>
+    <div className={className}>
       <Image src={s.src} alt={s.alt} priority={priority} sizes="(max-width: 480px) 90vw, 420px" className="w-full h-auto" />
     </div>
   );

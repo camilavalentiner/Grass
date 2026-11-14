@@ -106,16 +106,3 @@ body {
   height: 2px; background: var(--ink-soft); border-radius: 2px;
   transform: rotate(-1.2deg); opacity: .75;
 }
-
-/* ---- Illustration idle motion ------------------------------------------- */
-@keyframes breathe { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-3px) rotate(.4deg); } }
-@keyframes leap { 0%, 100% { transform: translateY(0) rotate(-1deg); } 45% { transform: translateY(-7px) rotate(1deg); } 60% { transform: translateY(-5px) rotate(.6deg); } }
-@keyframes tumble { 0%, 100% { transform: rotate(-1.4deg) translateY(0); } 50% { transform: rotate(1.4deg) translateY(-2px); } }
-.ani-breathe { animation: breathe 4.5s ease-in-out infinite; transform-origin: 50% 90%; }
-.ani-breathe-slow { animation: breathe 6.5s ease-in-out infinite; transform-origin: 50% 90%; }
-.ani-leap { animation: leap 2.4s ease-in-out infinite; transform-origin: 50% 70%; }
-.ani-tumble { animation: tumble 3.2s ease-in-out infinite; transform-origin: 50% 100%; }
-
-@media (prefers-reduced-motion: reduce) {
-  [class*="ani-"] { animation: none !important; }
-}

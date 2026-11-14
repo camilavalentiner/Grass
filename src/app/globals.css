@@ -127,3 +127,8 @@ body {
 .pop { animation: pop .6s cubic-bezier(.2,1.4,.4,1) both; }
 @keyframes pop { from { transform: scale(.7) rotate(-4deg); opacity: 0 } to { transform: none; opacity: 1 } }
 @media (prefers-reduced-motion: reduce) { .pop { animation: none } }
+.step-dot {
+  flex: none; width: 1.6rem; height: 1.6rem; border-radius: 999px;
+  display: grid; place-items: center; font-weight: 700; font-size: .8rem;
+  background: var(--yellow); color: var(--text); border: 1.5px solid rgba(59,47,40,.22);
+}

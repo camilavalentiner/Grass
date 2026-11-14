@@ -2,6 +2,14 @@ import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
 import { NextResponse } from "next/server";
+import { READER_SYSTEM } from "@/lib/readerPrompt";
+
+const hasKey = () => !!(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+
+/** Whether the built-in reader is switched on (only when the server has a Claude API key). */
+export async function GET() {
+  return NextResponse.json({ enabled: hasKey() });
+}
 
 export const maxDuration = 120;
 
@@ -27,20 +35,12 @@ const ExtractionSchema = z.object({
   notes: z.string().nullable(),
 });
 
-const SYSTEM = `You read a student's course material (syllabus photos, assignment pages, rubric tables, calendar screenshots, PDFs, pasted text) and return structured data for a study planner.
-
-Return every class you can identify with its evaluation rubric: each graded component, its share of the final grade as a percentage, and how many graded items it covers when stated (for example "8 problem sets, 20%"). Return every dated piece of work: homework, readings with quizzes, projects, essays, labs, exams, presentations. Use the class code when printed (like CHEM 242), else the class name.
-
-Dates: resolve relative dates against today's date and the student's time zone given in the message. Emit ISO 8601 with an offset. If only a day is given, use 23:59 that day. Leave due null when there is no date.
-
-kind: "optional" only when the material says the work is optional, extra credit, or ungraded. nature: "analytical" for problem sets, quizzes, exams, readings and calculations; "creative" for essays, presentations, designs, videos and open-ended projects; "mixed" for lab reports and projects with both. estimateMin: an honest estimate of focused minutes for a typical student, null if you cannot tell. weight: the task's own share of the final grade when it can be derived (component weight divided by number of items), else null.
-
-Do not invent classes or tasks that are not in the material. Put anything uncertain in notes.`;
+const SYSTEM = READER_SYSTEM;
 
 type Part = Anthropic.ContentBlockParam;
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
+  if (!hasKey()) {
     return NextResponse.json({ error: "The server has no Claude API key. Add ANTHROPIC_API_KEY to .env.local and restart." }, { status: 503 });
   }
   const form = await req.formData();

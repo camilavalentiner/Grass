@@ -1,5 +1,5 @@
 "use client";
-import { BuriedInBooks, Carefree, Celebrate, Expressions, RabbitReading, ReadingChair } from "@/components/illustrations/Scenes";
+import { Scene } from "@/components/illustrations/Scene";
 import { Stars } from "@/components/Stars";
 
 const swatches = [
@@ -46,18 +46,18 @@ export default function StyleBoard() {
       </section>
 
       <section className="card p-6">
-        <p className="eyebrow mb-3">Expressions</p>
-        <Expressions className="w-full max-w-md h-auto mb-6" />
         <p className="eyebrow mb-3">Illustrations · the mood follows the workload</p>
-        <div className="grid sm:grid-cols-3 gap-4">
-          <figure><Carefree className="w-full h-auto" /><figcaption className="text-xs text-center text-text-muted mt-1">Little left to do</figcaption></figure>
-          <figure><ReadingChair className="w-full h-auto" /><figcaption className="text-xs text-center text-text-muted mt-1">A fair amount left</figcaption></figure>
-          <figure><BuriedInBooks className="w-full h-auto" /><figcaption className="text-xs text-center text-text-muted mt-1">A lot left</figcaption></figure>
+        <div className="grid sm:grid-cols-3 gap-6 items-end">
+          <figure><Scene kind="relaxed" /><figcaption className="text-xs text-center text-text-muted mt-2">Little left to do</figcaption></figure>
+          <figure><Scene kind="reading-books" /><figcaption className="text-xs text-center text-text-muted mt-2">A fair amount left · odd days</figcaption></figure>
+          <figure><Scene kind="reading-chair" /><figcaption className="text-xs text-center text-text-muted mt-2">A fair amount left · even days</figcaption></figure>
+          <figure><Scene kind="overwhelmed" /><figcaption className="text-xs text-center text-text-muted mt-2">A lot left</figcaption></figure>
+          <figure><Scene kind="celebrate" /><figcaption className="text-xs text-center text-text-muted mt-2">Session finished</figcaption></figure>
         </div>
-        <div className="grid sm:grid-cols-3 gap-4 mt-4">
-          <figure><Celebrate className="w-full h-auto" /><figcaption className="text-xs text-center text-text-muted mt-1">Session finished</figcaption></figure>
-          <figure><RabbitReading className="w-full h-auto" /><figcaption className="text-xs text-center text-text-muted mt-1">Quiet moments & empty states</figcaption></figure>
-        </div>
+      </section>
+      <section className="p-2">
+        <p className="eyebrow mb-3 text-text">On the grass, without a card</p>
+        <div className="grid grid-cols-2 gap-6"><Scene kind="relaxed" /><Scene kind="overwhelmed" /></div>
       </section>
     </main>
   );

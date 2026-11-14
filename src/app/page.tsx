@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { MoodScene } from "@/components/illustrations/Scenes";
+import { MoodScene } from "@/components/illustrations/Scene";
 import { MiniCalendar } from "@/components/MiniCalendar";
 import { Stars } from "@/components/Stars";
 import { TaskRow } from "@/components/TaskRow";
@@ -32,7 +32,7 @@ export default function Home() {
       {/* 1 · illustration + phrase */}
       <section className="card p-5 pt-4 text-center">
         <p className="eyebrow">{greeting(now.getHours())}, Camila</p>
-        <MoodScene load={load} className="w-full h-auto max-h-56 mx-auto my-1" />
+        <MoodScene load={load} day={now} className="w-full max-w-[340px] mx-auto my-2" />
         <p className="text-[17px] leading-snug text-text-blue">
           Start <span className="font-semibold">{phrase.task?.title}</span> right now and{" "}
           {phrase.finishesTask ? "finish" : "reach"}{" "}

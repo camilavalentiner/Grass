@@ -1,26 +1,108 @@
 @import "tailwindcss";
 
+/* ---- Grass design tokens ------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* paper & ink */
+  --paper: #fbf8ef;
+  --paper-2: #f4efe1;
+  --ink: #3b2f28;          /* illustration line colour */
+  --ink-soft: #6b5a4e;
+
+  /* text (never black) */
+  --text: #2f4a32;         /* deep leaf green */
+  --text-blue: #2b3f5c;    /* deep slate blue */
+  --text-muted: #5f7a63;
+
+  /* pastels */
+  --blue: #bfd9ea;
+  --blue-2: #dcebf4;
+  --pink: #f5c9d3;
+  --pink-2: #fadde3;
+  --green: #cfe3b6;
+  --green-2: #e4efd3;
+  --yellow: #f7edb5;
+  --yellow-2: #fbf4d0;
+
+  /* calendar demand scale: baby pink -> burgundy */
+  --demand-0: #fadde3;
+  --demand-1: #f3bccb;
+  --demand-2: #e39bb0;
+  --demand-3: #c9748f;
+  --demand-4: #a44f6a;
+  --demand-5: #7a2e3f;
+
+  --radius: 22px;
+  --shadow: 0 6px 18px rgba(47, 74, 50, 0.10), 0 1px 2px rgba(47, 74, 50, 0.08);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-text: var(--text);
+  --color-text-blue: var(--text-blue);
+  --color-text-muted: var(--text-muted);
+  --color-blue: var(--blue);
+  --color-blue-2: var(--blue-2);
+  --color-pink: var(--pink);
+  --color-pink-2: var(--pink-2);
+  --color-green: var(--green);
+  --color-green-2: var(--green-2);
+  --color-yellow: var(--yellow);
+  --color-yellow-2: var(--yellow-2);
+  --color-burgundy: var(--demand-5);
+  --font-serif: var(--font-lora), Georgia, "Times New Roman", serif;
+  --radius-card: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { font-family: var(--font-lora), Georgia, serif; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #eef3d8;
+  background-image: url("/grass.svg");
+  background-size: 900px auto;
+  background-attachment: fixed;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* paper card that floats on the grass */
+.card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1.5px solid rgba(59, 47, 40, 0.12);
+  position: relative;
+}
+/* a faint hand-drawn double edge, like a pen line that didn't quite close */
+.card::after {
+  content: "";
+  position: absolute; inset: 5px;
+  border-radius: calc(var(--radius) - 5px);
+  border: 1px solid rgba(59, 47, 40, 0.10);
+  pointer-events: none;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .7rem 1.25rem; border-radius: 999px;
+  font-weight: 600; font-size: .95rem;
+  border: 1.5px solid rgba(59,47,40,.25);
+  background: var(--yellow); color: var(--text);
+  box-shadow: 0 2px 0 rgba(59,47,40,.18);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 rgba(59,47,40,.18); }
+.btn:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(59,47,40,.18); }
+.btn-blue { background: var(--blue); color: var(--text-blue); }
+.btn-pink { background: var(--pink); color: #6b2a3a; }
+.btn-green { background: var(--green); }
+
+.eyebrow { font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+
+.strike { position: relative; }
+.strike::after {
+  content: ""; position: absolute; left: -2px; right: -2px; top: 55%;
+  height: 2px; background: var(--ink-soft); border-radius: 2px;
+  transform: rotate(-1.2deg); opacity: .75;
 }

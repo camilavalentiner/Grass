@@ -1,4 +1,5 @@
 import type { ClassInfo, Task } from "./types";
+import type { SessionRecord } from "./store";
 
 const d = (daysFromNow: number, hour = 23, minute = 59) => {
   const t = new Date();
@@ -19,8 +20,31 @@ export const sampleTasks: Task[] = [
   { id: "t2", classId: "c1", title: "Lab report: aldol condensation", kind: "mandatory", nature: "mixed", weight: 10, due: d(4), estimateMin: 240, difficulty: 4, progress: 10, source: "canvas" },
   { id: "t3", classId: "c2", title: "Reading: Mankiw ch. 7 + quiz", kind: "mandatory", nature: "analytical", weight: 2, due: d(2, 9, 0), estimateMin: 60, difficulty: 2, progress: 0, source: "google" },
   { id: "t4", classId: "c3", title: "Essay draft: Jane Eyre and the gothic", kind: "mandatory", nature: "creative", weight: 20, due: d(7), estimateMin: 420, difficulty: 3, progress: 45, source: "teams" },
-  { id: "t5", classId: "c4", title: "Dashboard project: final slides", kind: "mandatory", nature: "creative", weight: 25, due: d(10), estimateMin: 300, difficulty: 3, progress: 60, source: "scan" },
+  { id: "t5", classId: "c4", title: "Dashboard project: final slides", kind: "mandatory", nature: "creative", weight: 30, rubricItemId: "r-project", due: d(10), estimateMin: 300, difficulty: 3, progress: 60, source: "scan" },
   { id: "t6", classId: "c4", title: "Optional: Observable notebook polish", kind: "optional", nature: "creative", weight: 0, due: d(12), estimateMin: 90, difficulty: 2, progress: 0, source: "manual" },
   { id: "t7", classId: "c3", title: "Discussion post: week 11", kind: "mandatory", nature: "creative", weight: 1, due: d(0, 23, 59), estimateMin: 40, difficulty: 1, progress: 0, source: "teams" },
   { id: "t8", classId: "c2", title: "Optional: practice midterm", kind: "optional", nature: "analytical", weight: 0, due: d(5), estimateMin: 120, difficulty: 3, progress: 100, source: "manual" },
+];
+
+const at = (daysAgo: number, hour: number, minute = 0) => {
+  const t = new Date(); t.setDate(t.getDate() - daysAgo); t.setHours(hour, minute, 0, 0); return t;
+};
+const rec = (daysAgo: number, hour: number, workMin: number, stars: number, planTitle: string, items: [string, number, number][], finishedEarly = false): SessionRecord => {
+  const s = at(daysAgo, hour);
+  return { id: `s-${daysAgo}-${hour}`, startedAt: s.toISOString(), endedAt: new Date(s.getTime() + workMin * 60_000).toISOString(), durationMin: workMin, workMin, stars, planTitle, finishedEarly, items: items.map(([taskId, from, to]) => ({ taskId, from, to })) };
+};
+/** Two weeks of sample sessions: mornings do well on analytical work, evenings on creative work, afternoons lag. */
+export const sampleSessions: SessionRecord[] = [
+  rec(13, 9, 60, 4, "Heavy lift", [["t1", 0, 20]]),
+  rec(12, 20, 50, 3, "One thing well", [["t4", 0, 15]]),
+  rec(11, 15, 25, 2, "Light touch", [["t3", 0, 10]], true),
+  rec(10, 8, 90, 5, "Heavy lift", [["t2", 0, 10], ["t1", 20, 30]]),
+  rec(9, 21, 60, 4, "Make something", [["t5", 0, 25]]),
+  rec(7, 10, 60, 3, "One thing well", [["t4", 15, 30]]),
+  rec(6, 14, 45, 2, "Light touch", [["t8", 0, 10]], true),
+  rec(5, 19, 90, 4, "Make something", [["t5", 25, 45], ["t4", 30, 40]]),
+  rec(4, 9, 50, 4, "One thing well", [["t8", 10, 70]]),
+  rec(3, 22, 60, 3, "Make something", [["t5", 45, 60]]),
+  rec(2, 8, 120, 5, "Heavy lift", [["t8", 70, 100], ["t4", 40, 45]]),
+  rec(1, 16, 25, 1, "Light touch", [["t7", 0, 0]], true),
 ];

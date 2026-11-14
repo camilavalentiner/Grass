@@ -1,6 +1,7 @@
 import type { ClassInfo, ExtractedTask, Extraction, RubricItem, Task, TaskNature } from "./types";
 import { icsToDate, type IcsEvent } from "./ics";
 import { uid } from "./store";
+import { defaultRubric, weightFromLine } from "./rubric";
 
 const COLORS: ClassInfo["color"][] = ["blue", "pink", "green", "yellow", "lav"];
 
@@ -27,7 +28,7 @@ export function fromExtraction(x: Extraction, existing: ClassInfo[], source: Tas
   const classes: ClassInfo[] = x.classes.map((c, i) => ({
     id: uid(), name: c.name.trim(), code: c.code?.trim() || undefined, term: c.term ?? undefined,
     color: COLORS[(existing.length + i) % COLORS.length], currentGrade: 0, targetGrade: 90,
-    rubric: c.rubric.map((r): RubricItem => ({ id: uid(), name: r.name, weight: r.weight, count: r.count ?? undefined })),
+    rubric: c.rubric.length ? c.rubric.map((r): RubricItem => ({ id: uid(), name: r.name, weight: r.weight, count: r.count ?? undefined })) : defaultRubric(),
   }));
   const all = [...classes, ...existing.filter((c) => !c.archived)];
   const findClass = (t: ExtractedTask) => {
@@ -36,8 +37,8 @@ export function fromExtraction(x: Extraction, existing: ClassInfo[], source: Tas
   };
   const tasks: Task[] = x.tasks.map((t) => {
     const cls = findClass(t);
-    const rub = cls?.rubric?.find((r) => t.rubricName && r.name.toLowerCase() === t.rubricName.toLowerCase());
-    const weight = t.weight ?? (rub ? Math.round((rub.weight / (rub.count ?? 1)) * 10) / 10 : 0);
+    const rub = cls?.rubric?.find((r) => !r.noTask && t.rubricName && r.name.toLowerCase() === t.rubricName.toLowerCase());
+    const weight = t.weight ?? (rub ? weightFromLine(rub) : 0);
     const nature = t.nature ?? guessNature(t.title);
     return {
       id: uid(), classId: cls?.id ?? "", title: t.title.trim(), description: t.description ?? undefined, kind: t.kind ?? "mandatory", nature,

@@ -6,6 +6,10 @@ export type RubricItem = {
   weight: number;
   /** how many graded items this line covers (each task gets weight / count) */
   count?: number;
+  /** already graded, so it no longer competes for study time */
+  past?: boolean;
+  /** counts toward the grade but never becomes a task (participation, attendance) */
+  noTask?: boolean;
 };
 
 export type ClassInfo = {

@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { ClassInfo, Task } from "@/lib/types";
 import { actions } from "@/lib/store";
 import { ClassSheet } from "./ClassSheet";
+import { rubricTotal } from "@/lib/rubric";
 
 const tint: Record<ClassInfo["color"], string> = { blue: "var(--blue)", pink: "var(--pink)", green: "var(--green)", yellow: "var(--yellow)", lav: "#e6d6f0" };
 
@@ -33,7 +34,7 @@ export function ClassesPanel({ classes, tasks, term }: { classes: ClassInfo[]; t
         {!shown.length && <p className="text-sm text-text-muted">No classes yet. Add one, scan a syllabus, or sync Canvas.</p>}
         <ul className="flex flex-col">
           {shown.map((c) => {
-            const total = (c.rubric ?? []).reduce((a, r) => a + r.weight, 0);
+            const total = rubricTotal(c.rubric);
             return (
               <li key={c.id}>
                 <button type="button" onClick={() => setEditing(c)} className="w-full text-left py-2.5 border-b border-dashed border-[rgba(59,47,40,.18)] last:border-0 flex items-start gap-3">
@@ -42,7 +43,9 @@ export function ClassesPanel({ classes, tasks, term }: { classes: ClassInfo[]; t
                     <span className={`block font-medium leading-snug ${c.archived ? "text-text-muted" : ""}`}>{c.code ? `${c.code} · ` : ""}{c.name}{c.archived && <span className="text-xs ml-2">archived</span>}</span>
                     <span className="block text-xs text-text-muted mt-0.5">
                       {c.currentGrade ? `${c.currentGrade}% now · aiming ${c.targetGrade ?? 90}%` : "no grade yet"} · {openCount(c.id)} open task{openCount(c.id) === 1 ? "" : "s"}
-                      {c.rubric?.length ? ` · rubric ${total}%` : " · no rubric"}
+                    </span>
+                    <span className="block text-xs text-text-muted mt-0.5 truncate">
+                      {(c.rubric ?? []).map((r) => `${r.name} ${r.weight}${r.past ? " ✓" : ""}`).join(" · ")}{Math.abs(total - 100) >= 0.5 ? ` · totals ${total}` : ""}
                     </span>
                   </span>
                   <span className="text-text-muted text-sm">›</span>

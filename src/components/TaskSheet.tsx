@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Sheet, Field, Segmented } from "./ui/Sheet";
 import type { ClassInfo, Task, TaskKind, TaskNature } from "@/lib/types";
 import { actions, uid } from "@/lib/store";
+import { weightFromLine } from "@/lib/rubric";
 
 const toLocalInput = (iso: string) => {
   const d = new Date(iso);
@@ -44,16 +45,16 @@ export function TaskSheet({ task, classes: allClasses, onClose }: { task: Task |
         </select>
       </Field>
       {(() => {
-        const rub = classes.find((c) => c.id === t.classId)?.rubric ?? [];
+        const rub = (classes.find((c) => c.id === t.classId)?.rubric ?? []).filter((r) => !r.noTask);
         if (!rub.length) return null;
         return (
-          <Field label="Counts toward" hint="Picking a rubric line sets the weight automatically.">
+          <Field label="Counts toward" hint="Picking a rubric line sets the weight; you can still change the weight below for this task alone.">
             <select className="input" value={t.rubricItemId ?? ""} onChange={(e) => {
               const r = rub.find((x) => x.id === e.target.value);
-              setT((prev) => ({ ...prev, rubricItemId: r?.id, weight: r ? Math.round((r.weight / (r.count ?? 1)) * 10) / 10 : prev.weight }));
+              setT((prev) => ({ ...prev, rubricItemId: r?.id, weight: r ? weightFromLine(r) : prev.weight }));
             }}>
               <option value="">— not linked —</option>
-              {rub.map((r) => <option key={r.id} value={r.id}>{r.name} · {r.weight}%{r.count ? ` ÷ ${r.count}` : ""}</option>)}
+              {rub.map((r) => <option key={r.id} value={r.id}>{r.name} · {r.weight}%{r.count && r.count > 1 ? ` ÷ ${r.count}` : ""}{r.past ? " · past" : ""}</option>)}
             </select>
           </Field>
         );

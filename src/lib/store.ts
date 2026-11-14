@@ -1,7 +1,8 @@
 "use client";
 import { useSyncExternalStore } from "react";
 import type { ClassInfo, Connections, DocRecord, Task } from "./types";
-import { sampleClasses, sampleTasks } from "./sample";
+import { sampleClasses, sampleSessions, sampleTasks } from "./sample";
+import { withRubric } from "./rubric";
 
 export type SessionItem = { taskId: string; startProgress: number; targetProgress: number };
 export type Phase = { kind: "work" | "break"; minutes: number };
@@ -49,13 +50,14 @@ const listeners = new Set<() => void>();
 let cache: AppState | null = null;
 
 function initial(): AppState {
-  return { version: 1, name: "Camila", classes: sampleClasses, tasks: sampleTasks, sessions: [], drive: null, active: null, documents: [], connections: { feeds: [] }, term: "Fall 2026" };
+  return { version: 1, name: "Camila", classes: sampleClasses.map(withRubric), tasks: sampleTasks, sessions: sampleSessions, drive: null, active: null, documents: [], connections: { feeds: [] }, term: "Fall 2026" };
 }
 function read(): AppState {
   if (cache) return cache;
   try {
     const raw = typeof window !== "undefined" ? window.localStorage.getItem(KEY) : null;
-    cache = raw ? { ...initial(), ...(JSON.parse(raw) as Partial<AppState>) } : initial();
+    const loaded: AppState = raw ? { ...initial(), ...(JSON.parse(raw) as Partial<AppState>) } : initial();
+    cache = { ...loaded, classes: loaded.classes.map(withRubric) };
   } catch {
     cache = initial();
   }
@@ -94,7 +96,8 @@ export const actions = {
   toggleDone(id: string) {
     actions.update((s) => ({ ...s, tasks: s.tasks.map((t) => (t.id === id ? { ...t, progress: t.progress >= 100 ? 0 : 100 } : t)) }));
   },
-  upsertClass(c: ClassInfo) {
+  upsertClass(raw: ClassInfo) {
+    const c = withRubric(raw);
     actions.update((s) => ({ ...s, classes: s.classes.some((x) => x.id === c.id) ? s.classes.map((x) => (x.id === c.id ? c : x)) : [...s.classes, c] }));
   },
   startSession(a: ActiveSession) { actions.update((s) => ({ ...s, active: a })); },
@@ -130,7 +133,7 @@ export const actions = {
         if (existing) {
           idMap.set(c.id, existing.id);
           Object.assign(existing, { ...existing, rubric: c.rubric?.length ? c.rubric : existing.rubric, externalId: c.externalId ?? existing.externalId, currentGrade: c.currentGrade || existing.currentGrade });
-        } else { nextClasses.push(c); idMap.set(c.id, c.id); }
+        } else { nextClasses.push(withRubric(c)); idMap.set(c.id, c.id); }
       }
       const nextTasks = [...s.tasks];
       for (const t of tasks) {

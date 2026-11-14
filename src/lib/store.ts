@@ -1,6 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
-import type { ClassInfo, Task } from "./types";
+import type { ClassInfo, Connections, DocRecord, Task } from "./types";
 import { sampleClasses, sampleTasks } from "./sample";
 
 export type SessionItem = { taskId: string; startProgress: number; targetProgress: number };
@@ -39,6 +39,9 @@ export type AppState = {
   sessions: SessionRecord[];
   drive: { stars: number; at: string } | null;
   active: ActiveSession | null;
+  documents: DocRecord[];
+  connections: Connections;
+  term: string;
 };
 
 const KEY = "grass.v1";
@@ -46,7 +49,7 @@ const listeners = new Set<() => void>();
 let cache: AppState | null = null;
 
 function initial(): AppState {
-  return { version: 1, name: "Camila", classes: sampleClasses, tasks: sampleTasks, sessions: [], drive: null, active: null };
+  return { version: 1, name: "Camila", classes: sampleClasses, tasks: sampleTasks, sessions: [], drive: null, active: null, documents: [], connections: { feeds: [] }, term: "Fall 2026" };
 }
 function read(): AppState {
   if (cache) return cache;
@@ -105,5 +108,39 @@ export const actions = {
     }));
   },
   abandonSession() { actions.update((s) => ({ ...s, active: null })); },
+  deleteClass(id: string) { actions.update((s) => ({ ...s, classes: s.classes.filter((c) => c.id !== id), tasks: s.tasks.filter((t) => t.classId !== id) })); },
+  /** New semester: archive every class and its open tasks are removed; done tasks stay for history. */
+  newTerm(term: string) {
+    actions.update((s) => ({ ...s, term, classes: s.classes.map((c) => ({ ...c, archived: true })), tasks: s.tasks.filter((t) => t.progress >= 100) }));
+  },
+  setTerm(term: string) { actions.update((s) => ({ ...s, term })); },
+  upsertDocument(d: DocRecord) {
+    actions.update((s) => ({ ...s, documents: s.documents.some((x) => x.id === d.id) ? s.documents.map((x) => (x.id === d.id ? d : x)) : [...s.documents, d] }));
+  },
+  deleteDocument(id: string) { actions.update((s) => ({ ...s, documents: s.documents.filter((d) => d.id !== id) })); },
+  setConnections(fn: (c: Connections) => Connections) { actions.update((s) => ({ ...s, connections: fn(s.connections) })); },
+  /** Merge imported classes (by code or name) and tasks (by externalId, else by title + class). */
+  importMany(classes: ClassInfo[], tasks: Task[]) {
+    actions.update((s) => {
+      const nextClasses = [...s.classes];
+      const idMap = new Map<string, string>(); // incoming class id → stored class id
+      for (const c of classes) {
+        const key = (x: ClassInfo) => (x.code ?? x.name).trim().toLowerCase();
+        const existing = nextClasses.find((x) => !x.archived && (key(x) === key(c) || (c.externalId && x.externalId === c.externalId)));
+        if (existing) {
+          idMap.set(c.id, existing.id);
+          Object.assign(existing, { ...existing, rubric: c.rubric?.length ? c.rubric : existing.rubric, externalId: c.externalId ?? existing.externalId, currentGrade: c.currentGrade || existing.currentGrade });
+        } else { nextClasses.push(c); idMap.set(c.id, c.id); }
+      }
+      const nextTasks = [...s.tasks];
+      for (const t of tasks) {
+        const classId = idMap.get(t.classId) ?? t.classId;
+        const dup = nextTasks.find((x) => (t.externalId && x.externalId === t.externalId) || (x.classId === classId && x.title.trim().toLowerCase() === t.title.trim().toLowerCase()));
+        if (dup) Object.assign(dup, { due: t.due, description: t.description ?? dup.description, weight: t.weight || dup.weight, url: t.url ?? dup.url, externalId: t.externalId ?? dup.externalId });
+        else nextTasks.push({ ...t, classId });
+      }
+      return { ...s, classes: nextClasses, tasks: nextTasks };
+    });
+  },
   resetSample() { write(initial()); },
 };

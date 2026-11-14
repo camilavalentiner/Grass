@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grass
 
-## Getting Started
+A gentle place to use your time well. A study planner that shows your academic progress, strikes tasks off as you finish them, and plans study sessions from how driven you feel and the hour of the day.
 
-First, run the development server:
+## Run it
 
 ```bash
+npm install
+cp .env.example .env.local   # add your Claude API key if you want photo / PDF / text reading
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Everything you enter is stored in the browser on the device you use.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Where things come from
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Classes & sources → Classes**: classes, current and target grade, and the evaluation rubric. Tasks linked to a rubric line take its weight divided by the number of items.
+- **Documents & scans**: photos of syllabi, rubric tables, assignment pages, PDFs or pasted text. The server route `/api/extract` reads them with Claude and proposes classes, rubrics and tasks for you to confirm. Needs `ANTHROPIC_API_KEY`.
+- **Connections**: Canvas (personal access token, proxied through `/api/canvas`) and any iCal feed (Google Calendar, Outlook / Teams calendar, Canvas calendar) through `/api/ics`.
 
-## Learn More
+## How the numbers work
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Priority** = weight on final grade × urgency × grade risk (how far the class sits below its target).
+- **Time still needed** = estimate × effort left (the last stretch is slower, more so for hard tasks) × difficulty × fit with the hour (4–12 analytical, 12–18 reset, 18–4 creative) × drive from the five stars.
+- **Sessions** run in 30-minute blocks with a 5-minute break after each full block; sessions under 30 minutes have none.

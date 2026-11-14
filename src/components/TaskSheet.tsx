@@ -19,8 +19,9 @@ export function guessDifficulty(weight: number, nature: TaskNature, kind: TaskKi
   return Math.max(1, Math.min(5, d)) as Task["difficulty"];
 }
 
-export function TaskSheet({ task, classes, onClose }: { task: Task | null | "new"; classes: ClassInfo[]; onClose: () => void }) {
+export function TaskSheet({ task, classes: allClasses, onClose }: { task: Task | null | "new"; classes: ClassInfo[]; onClose: () => void }) {
   const isNew = task === "new";
+  const classes = allClasses.filter((c) => !c.archived || (task && task !== "new" && task.classId === c.id));
   const [t, setT] = useState<Task>(() => (isNew || !task
     ? { id: uid(), classId: classes[0]?.id ?? "", title: "", kind: "mandatory", nature: "analytical", weight: 5, due: new Date(Date.now() + 3 * 864e5).toISOString(), estimateMin: 60, difficulty: 3, progress: 0, source: "manual" }
     : task));
@@ -42,6 +43,21 @@ export function TaskSheet({ task, classes, onClose }: { task: Task | null | "new
           {classes.map((c) => <option key={c.id} value={c.id}>{c.code ? `${c.code} · ` : ""}{c.name}</option>)}
         </select>
       </Field>
+      {(() => {
+        const rub = classes.find((c) => c.id === t.classId)?.rubric ?? [];
+        if (!rub.length) return null;
+        return (
+          <Field label="Counts toward" hint="Picking a rubric line sets the weight automatically.">
+            <select className="input" value={t.rubricItemId ?? ""} onChange={(e) => {
+              const r = rub.find((x) => x.id === e.target.value);
+              setT((prev) => ({ ...prev, rubricItemId: r?.id, weight: r ? Math.round((r.weight / (r.count ?? 1)) * 10) / 10 : prev.weight }));
+            }}>
+              <option value="">— not linked —</option>
+              {rub.map((r) => <option key={r.id} value={r.id}>{r.name} · {r.weight}%{r.count ? ` ÷ ${r.count}` : ""}</option>)}
+            </select>
+          </Field>
+        );
+      })()}
       <div className="grid grid-cols-2 gap-3">
         <Field label="Due"><input className="input" type="datetime-local" value={toLocalInput(t.due)} onChange={(e) => e.target.value && set("due", new Date(e.target.value).toISOString())} /></Field>
         <Field label="Estimate (min)"><input className="input" type="number" min={5} step={5} value={t.estimateMin} onChange={(e) => set("estimateMin", Math.max(5, +e.target.value || 5))} /></Field>

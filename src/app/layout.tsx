@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Lora } from "next/font/google";
 import "./globals.css";
 import { GrassSwitch } from "@/components/GrassSwitch";
+import { Nav } from "@/components/Nav";
 
 const lora = Lora({
   variable: "--font-lora",
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <GrassSwitch />
         {children}
+        <Nav />
       </body>
     </html>
   );

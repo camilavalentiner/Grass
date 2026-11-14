@@ -53,7 +53,7 @@ export default function Home() {
   const plans = driveStars ? buildPlans(tasks, classes, driveStars, now) : [];
 
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-6 flex flex-col gap-5">
+    <main className="mx-auto w-full max-w-md px-4 py-6 pb-24 flex flex-col gap-5">
       {/* 1 · illustration + phrase */}
       <section className="card p-5 pt-4 text-center">
         <div className="flex items-center justify-between">

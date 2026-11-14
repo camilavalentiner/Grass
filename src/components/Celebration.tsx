@@ -50,7 +50,12 @@ export function Celebration({ s, workMin, early, tasks, name, onDone }: { s: Act
                     <span className="text-sm font-medium truncate">{t.title}</span>
                     <span className="text-xs tabular-nums text-text-blue whitespace-nowrap">{it.startProgress}% → {v}%{v >= 100 ? " ✓" : ""}</span>
                   </div>
-                  <input type="range" min={0} max={100} step={5} value={v} onChange={(e) => setGot((g) => ({ ...g, [it.taskId]: +e.target.value }))} className="range w-full" aria-label={`Progress on ${t.title}`} />
+                  <div className="flex items-center gap-2">
+                    <input type="range" min={0} max={100} step={5} value={v} onChange={(e) => setGot((g) => ({ ...g, [it.taskId]: +e.target.value }))} className="range flex-1" aria-label={`Progress on ${t.title}`} />
+                    <button type="button" onClick={() => setGot((g) => ({ ...g, [it.taskId]: v >= 100 ? it.startProgress : 100 }))} className={`chip !py-1 !px-2.5 text-xs ${v >= 100 ? "chip-on" : ""}`} aria-pressed={v >= 100}>
+                      {v >= 100 ? "Completed" : "Mark completed"}
+                    </button>
+                  </div>
                 </li>
               );
             })}

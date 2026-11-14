@@ -17,7 +17,7 @@ export function fmtDue(iso: string, now = new Date()) {
 }
 export const fmtMin = (m: number) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}` : `${m}m`);
 
-export function TaskRow({ task, cls, now, onToggle }: { task: Task; cls?: ClassInfo; now: Date; onToggle?: () => void }) {
+export function TaskRow({ task, cls, now, onToggle, onOpen }: { task: Task; cls?: ClassInfo; now: Date; onToggle?: () => void; onOpen?: () => void }) {
   const done = task.progress >= 100;
   return (
     <li className="flex items-start gap-3 py-2.5 border-b border-dashed border-[rgba(59,47,40,.18)] last:border-0">
@@ -32,7 +32,7 @@ export function TaskRow({ task, cls, now, onToggle }: { task: Task; cls?: ClassI
           <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 13 l5 5 L20 6" fill="none" stroke="#2f4a32" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
         )}
       </button>
-      <div className="min-w-0 flex-1">
+      <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left" aria-label={`Open ${task.title}`}>
         <div className={`font-medium leading-snug ${done ? "strike text-text-muted" : "text-text"}`}>{task.title}</div>
         <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-text-muted">
           <span className="px-2 py-0.5 rounded-full border border-[rgba(59,47,40,.18)]" style={{ background: cls ? classTint[cls.color] : "var(--paper-2)", color: "var(--text-blue)" }}>
@@ -46,7 +46,7 @@ export function TaskRow({ task, cls, now, onToggle }: { task: Task; cls?: ClassI
         <div className="mt-1.5 h-1.5 rounded-full bg-paper-2 border border-[rgba(59,47,40,.12)] overflow-hidden">
           <div className="h-full rounded-full" style={{ width: `${task.progress}%`, background: done ? "var(--green)" : "var(--blue)" }} />
         </div>
-      </div>
+      </button>
       <div className="text-sm text-text-blue tabular-nums shrink-0">{task.progress}%</div>
     </li>
   );

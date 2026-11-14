@@ -106,3 +106,24 @@ body {
   height: 2px; background: var(--ink-soft); border-radius: 2px;
   transform: rotate(-1.2deg); opacity: .75;
 }
+
+/* ---- Forms & sheets ------------------------------------------------------- */
+.input {
+  display: block; width: 100%;
+  padding: .55rem .8rem; border-radius: 14px;
+  border: 1.5px solid rgba(59,47,40,.22); background: #fff;
+  color: var(--text); font: inherit; font-size: .95rem;
+}
+.input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+.chip {
+  padding: .35rem .8rem; border-radius: 999px; font-size: .85rem;
+  border: 1.5px solid rgba(59,47,40,.22); background: var(--paper-2); color: var(--text);
+}
+.chip-on { background: var(--blue); color: var(--text-blue); border-color: rgba(43,63,92,.4); font-weight: 600; }
+.range { accent-color: #7a2e3f; }
+.sheet { animation: rise .22s ease-out; }
+@keyframes rise { from { transform: translateY(16px); opacity: 0 } to { transform: none; opacity: 1 } }
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none } }
+.pop { animation: pop .6s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes pop { from { transform: scale(.7) rotate(-4deg); opacity: 0 } to { transform: none; opacity: 1 } }
+@media (prefers-reduced-motion: reduce) { .pop { animation: none } }

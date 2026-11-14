@@ -63,14 +63,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* the grass lives on fixed layers behind the page (see GrassBackground) */
-.grass { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #e6edc9; }
-.grass-canvas {
-  position: absolute; left: 50%; top: 50%;
-  width: max(100vw, 66.667vh); height: max(100vh, 150vw);
-  transform: translate(-50%, -50%);
-}
-.grass-layer { position: absolute; inset: 0; background-size: 100% 100%; background-repeat: no-repeat; will-change: transform; }
+/* the grass is drawn on one fixed canvas behind the page (see GrassBackground) */
+.grass { position: fixed; inset: 0; z-index: -1; background: #e6edc9; }
 
 /* paper card that floats on the grass */
 .card {

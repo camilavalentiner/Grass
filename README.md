@@ -22,4 +22,5 @@ Open http://localhost:3000. Everything you enter is stored in the browser on the
 
 - **Priority** = weight on final grade × urgency × grade risk (how far the class sits below its target).
 - **Time still needed** = estimate × effort left (the last stretch is slower, more so for hard tasks) × difficulty × fit with the hour (4–12 analytical, 12–18 reset, 18–4 creative) × drive from the five stars.
+- **Background**: the crayon grass is drawn once on a canvas and stays still.
 - **Sessions** run in 30-minute blocks with a 5-minute break after each full block; sessions under 30 minutes have none.

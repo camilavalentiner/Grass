@@ -10,7 +10,7 @@ const items = [
 
 export function Nav() {
   const path = usePathname();
-  if (path?.startsWith("/style") || path?.startsWith("/grass-demo")) return null;
+  if (path?.startsWith("/style")) return null;
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 flex justify-center pointer-events-none" aria-label="Main">
       <div className="pointer-events-auto mb-3 card !rounded-full px-1.5 py-1.5 flex gap-1 shadow-lg">

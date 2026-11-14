@@ -32,6 +32,15 @@ export type SessionRecord = {
   finishedEarly: boolean;
 };
 
+/** Per-item change times so two devices can merge: newest change wins, deletions are remembered. */
+export type SyncMeta = {
+  stamps: Record<string, number>;
+  tombstones: Record<string, number>;
+  /** the account this device last synced with */
+  userId?: string;
+  lastSync?: string;
+};
+
 export type AppState = {
   version: 1;
   name: string;
@@ -43,31 +52,63 @@ export type AppState = {
   documents: DocRecord[];
   connections: Connections;
   term: string;
+  sync: SyncMeta;
 };
+
+/** Collections and fields that travel between devices. Connections (Canvas token, feed addresses) and a running session stay on the device. */
+export const SYNCED_COLLECTIONS = ["classes", "tasks", "sessions", "documents"] as const;
+export const SYNCED_FIELDS = ["name", "term", "drive"] as const;
 
 const KEY = "grass.v1";
 const listeners = new Set<() => void>();
 let cache: AppState | null = null;
 
 function initial(): AppState {
-  return { version: 1, name: "Camila", classes: sampleClasses.map(withRubric), tasks: sampleTasks, sessions: sampleSessions, drive: null, active: null, documents: [], connections: { feeds: [] }, term: "Fall 2026" };
+  return { version: 1, name: "Camila", classes: sampleClasses.map(withRubric), tasks: sampleTasks, sessions: sampleSessions, drive: null, active: null, documents: [], connections: { feeds: [] }, term: "Fall 2026", sync: { stamps: {}, tombstones: {} } };
 }
 function read(): AppState {
   if (cache) return cache;
   try {
     const raw = typeof window !== "undefined" ? window.localStorage.getItem(KEY) : null;
     const loaded: AppState = raw ? { ...initial(), ...(JSON.parse(raw) as Partial<AppState>) } : initial();
-    cache = { ...loaded, classes: loaded.classes.map(withRubric) };
+    cache = { ...loaded, classes: loaded.classes.map(withRubric), sync: { ...loaded.sync, stamps: loaded.sync?.stamps ?? {}, tombstones: loaded.sync?.tombstones ?? {} } };
   } catch {
     cache = initial();
   }
   return cache;
 }
-function write(next: AppState) {
-  cache = next;
-  try { window.localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* storage may be unavailable; keep in memory */ }
-  listeners.forEach((l) => l());
+/** Record what changed between two states: new or edited items get a fresh stamp, removed ones a tombstone. */
+function stampChanges(prev: AppState, next: AppState): SyncMeta {
+  const now = Date.now();
+  const stamps = { ...next.sync.stamps }, tombstones = { ...next.sync.tombstones };
+  for (const key of SYNCED_COLLECTIONS) {
+    const before = new Map((prev[key] as { id: string }[]).map((x) => [x.id, JSON.stringify(x)]));
+    const after = new Set<string>();
+    for (const item of next[key] as { id: string }[]) {
+      after.add(item.id);
+      if (before.get(item.id) !== JSON.stringify(item)) { stamps[`${key}:${item.id}`] = now; delete tombstones[`${key}:${item.id}`]; }
+    }
+    for (const id of before.keys()) if (!after.has(id)) { tombstones[`${key}:${id}`] = now; delete stamps[`${key}:${id}`]; }
+  }
+  for (const f of SYNCED_FIELDS) if (JSON.stringify(prev[f]) !== JSON.stringify(next[f])) stamps[`field:${f}`] = now;
+  return { ...next.sync, stamps, tombstones };
 }
+
+let onLocalChange: (() => void) | null = null;
+/** The sync engine registers here to hear about edits made on this device. */
+export function setLocalChangeHandler(fn: (() => void) | null) { onLocalChange = fn; }
+
+function write(next: AppState, raw = false) {
+  const prev = read();
+  cache = raw ? next : { ...next, sync: stampChanges(prev, next) };
+  try { window.localStorage.setItem(KEY, JSON.stringify(cache)); } catch { /* storage may be unavailable; keep in memory */ }
+  listeners.forEach((l) => l());
+  if (!raw) onLocalChange?.();
+}
+
+export const getState = (): AppState => read();
+/** Replace the whole state without stamping it as a local edit (used when applying a merge). */
+export const replaceState = (next: AppState) => write(next, true);
 function subscribe(l: () => void) {
   listeners.add(l);
   const onStorage = (e: StorageEvent) => { if (e.key === KEY) { cache = null; l(); } };
@@ -145,5 +186,5 @@ export const actions = {
       return { ...s, classes: nextClasses, tasks: nextTasks };
     });
   },
-  resetSample() { write(initial()); },
+  resetSample() { write({ ...initial(), sync: read().sync }); },
 };

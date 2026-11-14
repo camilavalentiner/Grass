@@ -3,6 +3,7 @@ import { Lora } from "next/font/google";
 import "./globals.css";
 import { GrassBackground } from "@/components/GrassBackground";
 import { Nav } from "@/components/Nav";
+import { SyncAgent } from "@/components/SyncAgent";
 
 const lora = Lora({
   variable: "--font-lora",
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <GrassBackground />
         {children}
         <Nav />
+        <SyncAgent />
       </body>
     </html>
   );

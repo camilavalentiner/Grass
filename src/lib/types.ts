@@ -25,6 +25,8 @@ export type Task = {
   due: string;
   /** estimated minutes to complete from scratch */
   estimateMin: number;
+  /** how hard the task is for this student, 1 (easy) .. 5 (very hard) */
+  difficulty: 1 | 2 | 3 | 4 | 5;
   /** completion 0..100 */
   progress: number;
   source?: "canvas" | "google" | "teams" | "scan" | "manual";

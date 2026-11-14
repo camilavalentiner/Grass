@@ -58,13 +58,19 @@
 html { font-family: var(--font-lora), Georgia, serif; }
 
 body {
-  background-color: #eef3d8;
-  background-image: url("/grass.svg");
-  background-size: 900px auto;
-  background-attachment: fixed;
+  background-color: #e6edc9;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
+
+/* the grass lives on fixed layers behind the page (see GrassBackground) */
+.grass { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #e6edc9; }
+.grass-canvas {
+  position: absolute; left: 50%; top: 50%;
+  width: max(100vw, 66.667vh); height: max(100vh, 150vw);
+  transform: translate(-50%, -50%);
+}
+.grass-layer { position: absolute; inset: 0; background-size: 100% 100%; background-repeat: no-repeat; will-change: transform; }
 
 /* paper card that floats on the grass */
 .card {
@@ -105,4 +111,38 @@ body {
   content: ""; position: absolute; left: -2px; right: -2px; top: 55%;
   height: 2px; background: var(--ink-soft); border-radius: 2px;
   transform: rotate(-1.2deg); opacity: .75;
+}
+
+/* ---- Illustration idle motion ------------------------------------------- */
+.ani-blink, .ani-sway, .ani-bob, .ani-swing, .ani-bounce, .ani-twinkle, .ani-drift, .ani-page, .ani-nod, .ani-wobble, .ani-fall, .ani-twitch {
+  transform-box: view-box;
+}
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes swing { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes bounce { 0%, 100% { transform: translateY(0) } 40% { transform: translateY(-9px) } 60% { transform: translateY(-7px) } }
+@keyframes twinkle { 0%, 100% { transform: scale(1); opacity: 1 } 50% { transform: scale(.7); opacity: .55 } }
+@keyframes drift { 0% { transform: translateX(0) } 100% { transform: translateX(14px) } }
+@keyframes page { 0%, 70%, 100% { transform: scaleX(1) } 80% { transform: scaleX(-.1) } 90% { transform: scaleX(1) } }
+@keyframes nod { 0%, 100% { transform: rotate(0deg) } 50% { transform: rotate(2.5deg) } }
+@keyframes wobble { 0%, 100% { transform: rotate(-1.5deg) } 50% { transform: rotate(1.5deg) } }
+@keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 0 } 15% { opacity: 1 } 100% { transform: translateY(170px) rotate(200deg); opacity: 0 } }
+@keyframes twitch { 0%, 80%, 100% { transform: rotate(0deg) } 85% { transform: rotate(-8deg) } 92% { transform: rotate(4deg) } }
+
+.ani-blink  { animation: blink 4.8s ease-in-out infinite; }
+.ani-sway   { animation: sway 3.6s ease-in-out infinite; }
+.ani-bob    { animation: bob 3.2s ease-in-out infinite; }
+.ani-swing  { animation: swing 2.6s ease-in-out infinite; }
+.ani-bounce { animation: bounce 1.6s ease-in-out infinite; }
+.ani-twinkle{ animation: twinkle 1.8s ease-in-out infinite; }
+.ani-drift  { animation: drift 14s ease-in-out infinite alternate; }
+.ani-page   { animation: page 6s ease-in-out infinite; }
+.ani-nod    { animation: nod 4s ease-in-out infinite; }
+.ani-wobble { animation: wobble 3s ease-in-out infinite; }
+.ani-fall   { animation: fall 4.5s linear infinite; }
+.ani-twitch { animation: twitch 5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="ani-"] { animation: none !important; }
 }

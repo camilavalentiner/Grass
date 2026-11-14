@@ -1,6 +1,6 @@
 "use client";
 import type { ClassInfo, Task } from "@/lib/types";
-import { remainingMin } from "@/lib/engine";
+import { effectiveRemainingMin } from "@/lib/engine";
 
 const classTint: Record<ClassInfo["color"], string> = {
   blue: "var(--blue)", pink: "var(--pink)", green: "var(--green)", yellow: "var(--yellow)", lav: "#e6d6f0",
@@ -17,7 +17,7 @@ export function fmtDue(iso: string, now = new Date()) {
 }
 export const fmtMin = (m: number) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}` : `${m}m`);
 
-export function TaskRow({ task, cls, onToggle }: { task: Task; cls?: ClassInfo; onToggle?: () => void }) {
+export function TaskRow({ task, cls, now, onToggle }: { task: Task; cls?: ClassInfo; now: Date; onToggle?: () => void }) {
   const done = task.progress >= 100;
   return (
     <li className="flex items-start gap-3 py-2.5 border-b border-dashed border-[rgba(59,47,40,.18)] last:border-0">
@@ -38,8 +38,8 @@ export function TaskRow({ task, cls, onToggle }: { task: Task; cls?: ClassInfo; 
           <span className="px-2 py-0.5 rounded-full border border-[rgba(59,47,40,.18)]" style={{ background: cls ? classTint[cls.color] : "var(--paper-2)", color: "var(--text-blue)" }}>
             {cls?.code ?? cls?.name ?? "—"}
           </span>
-          <span className="px-1.5 py-0.5 rounded-md bg-paper-2">{fmtDue(task.due)}</span>
-          <span className="px-1.5 py-0.5 rounded-md bg-paper-2">{fmtMin(remainingMin(task))} left</span>
+          <span className="px-1.5 py-0.5 rounded-md bg-paper-2">{fmtDue(task.due, now)}</span>
+          <span className="px-1.5 py-0.5 rounded-md bg-paper-2">{fmtMin(effectiveRemainingMin(task, { now }))} left</span>
           {task.weight > 0 && <span className="px-1.5 py-0.5 rounded-md bg-paper-2">{task.weight}% of grade</span>}
           {task.kind === "optional" && <span className="italic px-1">optional</span>}
         </div>

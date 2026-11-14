@@ -20,7 +20,7 @@ export default function Home() {
   const total = tasks.reduce((s, t) => s + t.estimateMin, 0);
   const left = tasks.reduce((s, t) => s + remainingMin(t), 0);
   const load = total ? left / total : 0;
-  const phrase = finishByPhrase(tasks, classes, now, 3);
+  const phrase = finishByPhrase(tasks, classes, { now, stars });
   const sorted = sortTasks(tasks, classes, sort, now);
   const win = windowFor(now.getHours());
   const timeStr = phrase.at.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
@@ -34,7 +34,8 @@ export default function Home() {
         <p className="eyebrow">{greeting(now.getHours())}, Camila</p>
         <MoodScene load={load} className="w-full h-auto max-h-56 mx-auto my-1" />
         <p className="text-[17px] leading-snug text-text-blue">
-          Start <span className="font-semibold">{phrase.task?.title}</span> right now and finish{" "}
+          Start <span className="font-semibold">{phrase.task?.title}</span> right now and{" "}
+          {phrase.finishesTask ? "finish" : "reach"}{" "}
           <span className="font-semibold">{phrase.percent}%</span> of your tasks by{" "}
           <span className="font-semibold">{timeStr}</span>.
         </p>
@@ -67,7 +68,7 @@ export default function Home() {
         </div>
         <ul>
           {sorted.map((t) => (
-            <TaskRow key={t.id} task={t} cls={byId.get(t.classId)} onToggle={() => toggle(t.id)} />
+            <TaskRow key={t.id} task={t} cls={byId.get(t.classId)} now={now} onToggle={() => toggle(t.id)} />
           ))}
         </ul>
       </section>

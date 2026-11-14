@@ -1,5 +1,5 @@
 "use client";
-import { BuriedInBooks, Carefree, Celebrate, RabbitReading, ReadingChair } from "@/components/illustrations/Scenes";
+import { BuriedInBooks, Carefree, Celebrate, Expressions, RabbitReading, ReadingChair } from "@/components/illustrations/Scenes";
 import { Stars } from "@/components/Stars";
 
 const swatches = [
@@ -46,6 +46,8 @@ export default function StyleBoard() {
       </section>
 
       <section className="card p-6">
+        <p className="eyebrow mb-3">Expressions</p>
+        <Expressions className="w-full max-w-md h-auto mb-6" />
         <p className="eyebrow mb-3">Illustrations · the mood follows the workload</p>
         <div className="grid sm:grid-cols-3 gap-4">
           <figure><Carefree className="w-full h-auto" /><figcaption className="text-xs text-center text-text-muted mt-1">Little left to do</figcaption></figure>

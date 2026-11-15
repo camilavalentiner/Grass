@@ -16,6 +16,8 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "Grass",
   description: "A gentle place to use your time well.",
+  applicationName: "Grass",
+  appleWebApp: { capable: true, title: "Grass", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

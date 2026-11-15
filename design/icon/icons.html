@@ -1,0 +1,81 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#fff;display:flex;gap:20px;padding:20px;flex-wrap:wrap}
+svg{width:512px;height:512px;display:block}
+</style></head><body>
+<svg id="daisy" viewBox="0 0 100 100"></svg>
+<svg id="blade" viewBox="0 0 100 100"></svg>
+<svg id="book" viewBox="0 0 100 100"></svg>
+<script>
+const NS="http://www.w3.org/2000/svg";
+let seed=7; const rnd=()=>{seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296}; const rr=(a,b)=>a+(b-a)*rnd();
+const INK="#3b2f28";
+const defs=`<defs>
+ <filter id="ink" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.35" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="0.9" xChannelSelector="R" yChannelSelector="G"/></filter>
+ <filter id="wash" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation=".25"/></filter>
+ <filter id="crayon" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="0.7" xChannelSelector="R" yChannelSelector="G"/></filter>
+ <filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="2"/><feColorMatrix type="matrix" values="0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .4  0 0 0 .06 0"/></filter>
+</defs>`;
+const greens=["#8fbc55","#a6cb66","#6f9e46","#b5d473","#7fae4e","#c3dc7c","#5f8f3f"];
+function tuft({cx,base,w,h,n,lean=0}){ // curved crayon strokes, swaying like the app background
+  const strokes=[];
+  for(let i=0;i<n;i++){
+    const x=cx+rr(-w/2,w/2), len=rr(h*0.35,h)*(1-Math.abs(x-cx)/w*0.5);
+    const ang=(x-cx)/w*1.1+lean+rr(-.45,.45), bend=rr(-.6,.6);
+    const tx=x+Math.sin(ang)*len, ty=base-Math.cos(ang)*len;
+    const mx=x+Math.sin(ang+bend*.5)*len*.55, my=base-Math.cos(ang+bend*.5)*len*.6;
+    const c=greens[Math.floor(rnd()*greens.length)];
+    strokes.push({len,d:`M${x.toFixed(1)} ${(base+rr(1,4)).toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}`,c,w:rr(1.3,2.3)});
+  }
+  strokes.sort((a,b)=>b.len-a.len); // tall ones behind
+  const band=`<g filter="url(#wash)"><path d="M${cx-w/2-6} ${base+8} Q${cx} ${base-h*.35} ${cx+w/2+6} ${base+8} Z" fill="#b5d473" opacity=".55"/></g>`;
+  return band+`<g filter="url(#crayon)">${strokes.map(s=>`<path d="${s.d}" stroke="${s.c}" stroke-width="${s.w.toFixed(2)}" fill="none" stroke-linecap="round" opacity=".92"/>`).join("")}</g>`;
+}
+function daisyHead(cx,cy,r,petals=11,rot=0){
+  let wash="",ink="";
+  for(let i=0;i<petals;i++){const a=rot+i/petals*Math.PI*2;const px=cx+Math.cos(a)*r*.58,py=cy+Math.sin(a)*r*.58;const deg=a*180/Math.PI;
+    wash+=`<ellipse cx="${px}" cy="${py}" rx="${r*.5}" ry="${r*.2}" transform="rotate(${deg} ${px} ${py})" fill="#fffdf6"/>`;
+    ink+=`<ellipse cx="${px}" cy="${py}" rx="${r*.5}" ry="${r*.2}" transform="rotate(${deg} ${px} ${py})" fill="none"/>`;}
+  const sw=Math.min(1.15, r*0.07);
+  return {wash, ink:`<g stroke-width="${sw}">${ink}</g><circle cx="${cx}" cy="${cy}" r="${r*.3}" fill="#f3c93f" stroke-width="${sw}"/><circle cx="${cx+r*.05}" cy="${cy+r*.06}" r="${r*.16}" fill="#d9a520" stroke="none" opacity=".55"/>`};
+}
+const bg=(c1,c2)=>`<rect width="100" height="100" fill="${c1}"/><g filter="url(#wash)" opacity=".9"><ellipse cx="50" cy="44" rx="40" ry="36" fill="${c2}"/></g><rect width="100" height="100" filter="url(#paper)"/>`;
+
+/* A — daisy on a tuft */
+seed=21;
+{const h=daisyHead(52,36,22,11,.2);
+document.getElementById("daisy").innerHTML=defs+bg("#fbf8ef","#dcebf4")+`
+<g filter="url(#wash)" transform="translate(.8 .6)"><path d="M49 86 Q44 64 52 42" stroke="#9cc35f" stroke-width="3.2" fill="none"/><path d="M48 70 q-12 -4 -16 -14 q11 2 16 10z M50 62 q12 -6 18 -2 q-8 7 -18 6z" fill="#a6cb66"/>${h.wash}</g>
+${tuft({cx:50,base:92,w:62,h:22,n:70})}
+<g filter="url(#ink)" stroke="${INK}" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M49 86 Q44 64 52 42"/><path d="M48 70 q-12 -4 -16 -14 q11 2 16 10 M50 62 q12 -6 18 -2 q-8 7 -18 6"/>${h.ink}</g>`;}
+
+/* B — a slender blade of grass arching over, with a small daisy at its foot */
+seed=5;
+{const h=daisyHead(70,72,9,9,.4);
+document.getElementById("blade").innerHTML=defs+bg("#fbf8ef","#f5c9d3")+`
+<g filter="url(#wash)" transform="translate(.8 .6)">
+ <path d="M36 92 C 34 62, 40 34, 58 20 C 66 14, 76 16, 80 30 C 72 22, 64 22, 58 28 C 46 40, 43 64, 44 92 Z" fill="#8fbc55"/>
+ <path d="M28 92 C 26 76, 24 66, 18 58 C 26 62, 31 72, 33 92 Z" fill="#a6cb66"/>
+ <path d="M70 92 V80" stroke="#9cc35f" stroke-width="1.6"/>
+ ${h.wash}</g>
+${tuft({cx:50,base:97,w:84,h:14,n:60})}
+<g filter="url(#ink)" stroke="${INK}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+ <path d="M36 92 C 34 62, 40 34, 58 20 C 66 14, 76 16, 80 30 C 72 22, 64 22, 58 28 C 46 40, 43 64, 44 92"/>
+ <path d="M41 82 C 40 62, 44 44, 56 30" stroke-width=".6" opacity=".6"/>
+ <path d="M28 92 C 26 76, 24 66, 18 58 C 26 62, 31 72, 33 92"/>
+ <path d="M70 92 V80" stroke-width=".8"/>${h.ink}</g>`;}
+
+/* C — an open book resting in grass, a daisy tucked in as a bookmark */
+seed=33;
+{const h=daisyHead(64,30,11,10,.3);
+document.getElementById("book").innerHTML=defs+bg("#fbf8ef","#f7edb5")+`
+<g filter="url(#wash)" transform="translate(.8 7.6)">
+ <path d="M51 60 Q55 44 64 32" stroke="#9cc35f" stroke-width="2" fill="none"/><path d="M54 50 q7 -6 12 -4 q-5 6 -12 4z" fill="#a6cb66"/>
+ <path d="M14 56 Q32 48 50 58 Q68 48 86 56 L86 74 Q68 66 50 76 Q32 66 14 74 Z" fill="#fffdf6"/>
+ <path d="M14 74 Q32 66 50 76 Q68 66 86 74 L86 78 Q68 70 50 80 Q32 70 14 78 Z" fill="#bfd9ea"/>
+ ${h.wash}</g>
+<g transform="translate(0 7)"><g filter="url(#ink)" stroke="${INK}" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" fill="none">
+ <path d="M51 60 Q55 44 64 32"/><path d="M54 50 q7 -6 12 -4 q-5 6 -12 4"/>
+ <path d="M14 56 Q32 48 50 58 Q68 48 86 56 L86 74 Q68 66 50 76 Q32 66 14 74 Z M50 58 V76 M14 74 L14 78 Q32 70 50 80 Q68 70 86 78 L86 74"/>
+ <path d="M20 59 q12 -5 25 1 M20 63 q12 -5 25 1 M20 67 q10 -4 20 0 M55 60 q12 -6 25 -1 M55 64 q12 -6 25 -1 M55 68 q10 -5 20 -1" stroke-width=".6" opacity=".55"/>
+ ${h.ink}</g></g>${tuft({cx:50,base:97,w:100,h:18,n:85})}`;}
+</script></body></html>
